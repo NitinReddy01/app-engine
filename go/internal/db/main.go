@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"cloud.google.com/go/datastore"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -32,12 +31,12 @@ func Close() {
 	}
 }
 
-var DsClient *datastore.Client
+// var DsClient *datastore.Client
 
-func InitDatastore(ctx context.Context, projectID string) {
-	c, err := datastore.NewClient(ctx, projectID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	DsClient = c
-}
+// func InitDatastore(ctx context.Context, projectID string) {
+// 	c, err := datastore.NewClient(ctx, projectID)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	DsClient = c
+// }

@@ -21,14 +21,14 @@ func Load() *Config {
 	if err != nil {
 		log.Fatalf("Invalid port: %s", portString)
 	}
-	dbUrl := getEnv("DATABASE_URL")
-	if dbUrl == "" {
-		log.Fatalf("Missing DB URL in env variables")
-	}
+	// dbUrl := getEnv("DATABASE_URL")
+	// if dbUrl == "" {
+	// 	log.Fatalf("Missing DB URL in env variables")
+	// }
 
 	config := &Config{
-		Port:   portString,
-		DB_URL: dbUrl,
+		Port: portString,
+		// DB_URL: dbUrl,
 	}
 	return config
 }

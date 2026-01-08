@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"go-app-engine/internal/config"
-	"go-app-engine/internal/db"
 	"go-app-engine/internal/routes"
 	"log"
 	"net/http"
@@ -12,8 +10,8 @@ import (
 func main() {
 	cfg := config.Load()
 
-	db.Connect(cfg.DB_URL)
-	db.InitDatastore(context.Background(), "eksaq-utils")
+	// db.Connect(cfg.DB_URL)
+	// db.InitDatastore(context.Background(), "eksaq-utils")
 
 	router := routes.New(cfg)
 
