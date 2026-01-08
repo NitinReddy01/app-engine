@@ -1,0 +1,318 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ActivityResult {
+  id                      String    @id
+  studentId               String
+  peerId                  String?
+  peerAssessmentRubric    Json?
+  selfAssessmentRubric    Json?
+  teacherAssessmentRubric Json?
+  peerAssessmentMarks     Int?
+  selfAssessmentMarks     Int?
+  teacherMarks            Int?
+  badgeId                 String?
+  teacherId               String?
+  teacherFeedback         String?
+  totalMarks              Int
+  evidence                Json?
+  taskId                  String
+  created_at              DateTime  @default(now())
+  batch_id                String?
+  subject                 String?
+  edited_at               DateTime?
+  evaluated_at            DateTime?
+  status                  Status    @default(INPROGRESS)
+  Badge                   Badge?    @relation(fields: [badgeId], references: [id])
+}
+
+model Badge {
+  id                  String                @id
+  name                String
+  description         String?
+  type                String
+  imageUrl            String?
+  productId           Int                   @default(0)
+  courseId            String?
+  ActivityResult      ActivityResult[]
+  StudentAchievements StudentAchievements[]
+  UserBadge           UserBadge[]
+}
+
+model Certificate {
+  id            String  @id
+  title         String
+  courseName    String?
+  organisation  String
+  courseId      String?
+  signature     Json
+  templateStyle String
+  description   String
+  logos         Json
+}
+
+model ComputerBasedTest {
+  id           String   @id
+  assessmentId String
+  marks        Int
+  type         String
+  evidence     Json
+  created_art  DateTime @default(now())
+  batch_id     String?
+
+  @@index([assessmentId])
+}
+
+model CourseCredits {
+  id             String       @id
+  course_id      String
+  credit_id      String
+  total_credits  Int
+  credits        Json
+  impact_credits Json
+  mentor_credits Json
+  CreditSystem   CreditSystem @relation(fields: [credit_id], references: [id])
+
+  @@unique([course_id, credit_id])
+}
+
+model CreditSystem {
+  id            String          @id
+  name          String          @unique
+  created_at    DateTime        @default(now())
+  product_Id    Int
+  CourseCredits CourseCredits[]
+}
+
+model Notes {
+  id           String        @id
+  user_id      String
+  created_at   DateTime      @default(now())
+  updated_at   DateTime
+  note         Json
+  UserProgress UserProgress?
+}
+
+model RCA_Assessment_Results {
+  id            String        @id
+  student_id    String
+  assessment_id String
+  answers       Json
+  score         Float
+  month         Int?
+  week          Int?
+  created_at    DateTime      @default(now())
+  type          Journey_Types
+  RCA_Result    RCA_Result?
+
+  @@index([student_id])
+}
+
+model RCA_Journey {
+  id              String     @id
+  student_id      String
+  passage_title   String
+  assessment_type String
+  level           String
+  is_shown        Boolean
+  result_Id       String     @unique
+  created_at      DateTime   @default(now())
+  month           Int?
+  week            Int?
+  RCA_Result      RCA_Result @relation(fields: [result_Id], references: [id], onDelete: Cascade)
+
+  @@index([student_id])
+}
+
+model RCA_Result {
+  id                     String                 @id
+  student_id             String
+  assessment_id          String
+  partA_score            Float                  @default(0)
+  partB_score            Float                  @default(0)
+  partA_report           Json
+  partB_report           String                 @unique
+  duration               Float
+  feedback               Json
+  created_at             DateTime               @default(now())
+  grade                  RCA_GRADES
+  total                  Float?
+  RCA_Journey            RCA_Journey?
+  RCA_Assessment_Results RCA_Assessment_Results @relation(fields: [partB_report], references: [id], onDelete: Cascade)
+
+  @@index([student_id])
+}
+
+model Sml_Reports {
+  id             String    @id
+  user_id        String
+  total          Int
+  content_type   String
+  questions      Json
+  status         Status
+  content_id     String
+  createdAt      DateTime  @default(now())
+  reviewedAt     DateTime?
+  updatedAt      DateTime
+  comments       String?
+  impact_users   Json?
+  mentor_credits Json
+  impact_credits Json
+
+  @@unique([user_id, content_id])
+}
+
+model StudentAchievements {
+  id                String   @id
+  studentId         String
+  classId           String
+  name              String
+  description       String
+  category          String
+  dateOfAchievement DateTime
+  createdAt         DateTime @default(now())
+  evidence          String[]
+  status            String   @default("PENDING")
+  badgeId           String?
+  batch_id          String?
+  product_id        Int      @default(0)
+  score             Float    @default(0)
+  Badge             Badge?   @relation(fields: [badgeId], references: [id])
+}
+
+model Student_Learning_Journey {
+  id            String        @id
+  student_id    String
+  created_at    DateTime      @default(now())
+  status        Json
+  current       Json
+  level         String
+  current_month Int?          @default(0)
+  type          Journey_Types
+
+  @@index([student_id])
+}
+
+model Term_Examination_Results {
+  id          String   @id
+  student_id  String
+  subject     String
+  marks       Float
+  exam_name   String
+  percentage  Float
+  total_marks Int
+  created_at  DateTime @default(now())
+  batch_id    String?
+  class_id    String?
+  school_id   String?
+
+  @@unique([student_id, subject, exam_name, batch_id])
+  @@index([student_id, subject, exam_name])
+}
+
+model UserBadge {
+  id         String   @id
+  userId     String
+  badgeId    String
+  awardedAt  DateTime @default(now())
+  assignedBy String?
+  batchId    String?
+  Badge      Badge    @relation(fields: [badgeId], references: [id])
+}
+
+model UserContentTime {
+  id          String      @id
+  userId      String
+  contentId   String
+  totalTime   BigInt      @default(0)
+  day         DateTime
+  created_at  DateTime    @default(now())
+  updated_at  DateTime
+  contentType ContentType
+  product_id  Int         @default(2)
+
+  @@unique([userId, contentId, day])
+}
+
+model UserProgress {
+  id           String    @id
+  user_id      String
+  content_type String
+  content_id   String
+  progress     Float
+  completed_at DateTime?
+  note_id      String?   @unique
+  status       Status
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now())
+  credits      Float?
+  creditHours  Float?
+  product_id   Int?
+  Notes        Notes?    @relation(fields: [note_id], references: [id])
+
+  @@unique([user_id, content_id])
+}
+
+model self_evaluations {
+  id            String   @id
+  created_at    DateTime @default(now())
+  assessment_id String
+  student_id    String
+  product_id    Int
+  rubrics       Json
+  month         Int?
+  week          Int?
+}
+
+model user_Course_Feedback {
+  id           String @id
+  userId       String
+  instructorId String
+  feedback     String
+  cohotId      String
+}
+
+enum ContentType {
+  img
+  pdf
+  video
+  doc
+  self_reading
+  generic_video
+  expert_talk
+  self_reflection
+  unit
+  case_studies
+  group_discussion
+  school_field_practicum
+  section
+  capstone_project
+  course
+  question
+  scorm
+}
+
+enum Journey_Types {
+  RCA
+  VBB
+}
+
+enum RCA_GRADES {
+  Transitional
+  Proficient
+  Emergent
+}
+
+enum Status {
+  COMPLETED
+  INPROGRESS
+  NOTSTARTED
+  REQUESTED_CHANGES
+}

@@ -1,0 +1,20 @@
+runtime: go122
+env: standard
+
+service: goapi
+
+# app_engine_apis: true
+
+instance_class: F1
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5
+
+handlers:
+  - url: /.*
+    secure: always
+    script: auto
+
+env_variables:
+  DATABASE_URL: "postgresql://postgres.xnqluchjqflptfzcbqzj:vyjce0-qYwgud-zunxuq@aws-0-ap-south-1.pooler.supabase.com:5432/postgres"
